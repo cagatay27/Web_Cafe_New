@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { IconButton } from '@mui/material';
-import { DeleteOutline } from '@mui/icons-material';
-import { AppContext } from '../contexts/AppContext';
+import { DeleteOutline, ShoppingCart } from '@mui/icons-material';
+import { AppContext } from '../App'; // Make sure it's importing from App.js
 
 function Favorites() {
-  const { favoriteItems, removeFromFavorites } = useContext(AppContext);
+  const { favoriteItems, removeFromFavorites, addToCart } = useContext(AppContext);
   
   return (
     <div className="favorites-page">

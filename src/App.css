@@ -434,7 +434,55 @@
   background-color: rgba(211, 47, 47, 0.1) !important;
 }
 
-/* Add this to your existing CSS */
+/* Add these styles to the end of your App.css file */
+
+/* Admin Panel Styles */
+.admin-panel {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #6d4c41 !important;
+  color: white !important;
+}
+
+.admin-content {
+  margin-top: 20px;
+}
+
+.admin-section {
+  padding: 20px;
+  height: 100%;
+}
+
+.section-title {
+  margin-bottom: 20px !important;
+  color: #6d4c41 !important;
+  display: flex;
+  align-items: center;
+}
+
+.admin-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.admin-card {
+  margin-bottom: 15px;
+  border-left: 4px solid #6d4c41;
+}
+
+.admin-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
 .loading-overlay {
   position: fixed;
   top: 0;

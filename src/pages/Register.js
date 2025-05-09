@@ -75,7 +75,7 @@ function Register() {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <h2>Hesap Oluştur</h2>
+        <h2>Kaydol</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -85,6 +85,7 @@ function Register() {
               value={name} 
               onChange={(e) => setName(e.target.value)}
               placeholder="Adınız ve soyadınız"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -94,6 +95,7 @@ function Register() {
               value={email} 
               onChange={(e) => setEmail(e.target.value)}
               placeholder="E-posta adresiniz"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -103,6 +105,7 @@ function Register() {
               value={password} 
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Şifreniz (en az 6 karakter)"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -112,6 +115,7 @@ function Register() {
               value={confirmPassword} 
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Şifrenizi tekrar girin"
+              disabled={loading}
             />
           </div>
           <Button 
@@ -119,7 +123,6 @@ function Register() {
             type="submit" 
             className="auth-button"
             disabled={loading}
-            style={{ backgroundColor: '#6d4c41' }}
           >
             {loading ? 'Kaydediliyor...' : 'Kaydol'}
           </Button>

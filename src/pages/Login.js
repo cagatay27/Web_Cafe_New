@@ -1,22 +1,15 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
-import { AppContext } from '../contexts/AppContext';
+import { Button, TextField } from '@mui/material';
+import { AppContext } from '../App';
 
 function Login() {
-  const navigate = useNavigate();
-  const { loginUser, user } = useContext(AppContext);
+  const { loginUser } = useContext(AppContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate('/account');
-    }
-  }, [user, navigate]);
-
+  const navigate = useNavigate();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -27,7 +20,11 @@ function Login() {
     try {
       const success = await loginUser(email, password);
       if (success) {
-        navigate('/'); // Redirect to home/menu page after login
+        if (email === 'admin@gmail.com') {
+          navigate('/admin'); // Admin paneline yönlendir
+        } else {
+          navigate('/'); // Normal kullanıcıları ana sayfaya yönlendir
+        }
       } else {
         setError('E-posta veya şifre hatalı');
       }

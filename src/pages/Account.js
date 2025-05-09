@@ -1,12 +1,13 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Button, TextField, Avatar } from '@mui/material';
 import { Person } from '@mui/icons-material';
-import { AppContext } from '../contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../App';
 
 function Account() {
+  const { user, updateUserProfile, logoutUser } = useContext(AppContext);
   const navigate = useNavigate();
-  const { user, logoutUser, updateUserProfile } = useContext(AppContext);
+  
   const [profileImage, setProfileImage] = useState(user?.profileImage || '');
 
   const handleLogout = () => {
