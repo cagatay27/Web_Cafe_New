@@ -20,17 +20,18 @@ function Login() {
     try {
       const success = await loginUser(email, password);
       if (success) {
-        if (email === 'admin@gmail.com') {
-          navigate('/admin'); // Admin paneline yönlendir
+        // Admin kullanıcısı için özel yönlendirme
+        if (email.trim().toLowerCase() === 'admin@gmail.com') {
+          navigate('/admin');
         } else {
-          navigate('/'); // Normal kullanıcıları ana sayfaya yönlendir
+          navigate('/');
         }
       } else {
-        setError('E-posta veya şifre hatalı');
+        setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
       }
     } catch (error) {
       console.error("Login error:", error);
-      setError('Giriş yapılırken bir hata oluştu: ' + error.message);
+      setError('Giriş yapılırken bir hata oluştu.');
     }
   };
 

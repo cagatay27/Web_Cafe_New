@@ -1,5 +1,5 @@
-import React, { useState, useEffect, createContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Badge, Avatar } from '@mui/material';
 import { ShoppingCart, Favorite, Home as HomeIcon, Person } from '@mui/icons-material';
 import './App.css';
@@ -33,12 +33,85 @@ import Register from './pages/Register';
 import Account from './pages/Account';
 import AdminPanel from './pages/AdminPanel';
 
-// Import AppProvider
-// Remove this import since we're defining our own context in this file
-// import { AppProvider } from './contexts/AppContext';
+// Bu satırları silin:
+// // AppContext'i doğrudan tanımlamak yerine import edin
+// import { AppProvider, AppContext } from './contexts/AppContext';
 
 // Create AppContext
 export const AppContext = createContext();
+
+function AppContent() {
+  const location = useLocation();
+  const { cartItems, favoriteItems, user, logoutUser } = useContext(AppContext);
+  
+  // Admin sayfasında olup olmadığımızı kontrol et
+  const isAdminPage = location.pathname === '/admin';
+  
+  return (
+    <div className="App">
+      {/* Admin sayfasında header'ı gösterme */}
+      {!isAdminPage && (
+        <AppBar position="static" style={{ backgroundColor: '#6d4c41' }}>
+          <Toolbar>
+            <Typography variant="h6" component={Link} to={user ? "/" : "/login"} style={{ flexGrow: 1, textDecoration: 'none', color: 'white' }}>
+              <HomeIcon style={{ marginRight: '10px', verticalAlign: 'middle' }} />
+              Cafe Catalog
+            </Typography>
+            {user && (
+              <>
+                <IconButton color="inherit" component={Link} to="/cart">
+                  <Badge badgeContent={cartItems.length} color="secondary">
+                    <ShoppingCart />
+                  </Badge>
+                </IconButton>
+                <IconButton color="inherit" component={Link} to="/favorites">
+                  <Badge badgeContent={favoriteItems.length} color="secondary">
+                    <Favorite />
+                  </Badge>
+                </IconButton>
+                <IconButton 
+                  color="inherit" 
+                  component={Link} 
+                  to="/account"
+                  style={{ marginLeft: '8px' }}
+                >
+                  {user.profileImage ? (
+                    <Avatar 
+                      src={user.profileImage} 
+                      alt={user.name} 
+                      sx={{ width: 32, height: 32, border: '2px solid white' }} 
+                    />
+                  ) : (
+                    <Person style={{ fontSize: '28px' }} />
+                  )}
+                </IconButton>
+              </>
+            )}
+            {!user && (
+              <Button color="inherit" component={Link} to="/login">
+                Giriş Yap
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
+      )}
+
+      <Routes>
+        <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+        <Route path="/cart" element={user ? <Cart /> : <Navigate to="/login" />} />
+        <Route path="/favorites" element={user ? <Favorites /> : <Navigate to="/login" />} />
+        <Route path="/login" element={!user ? <Login /> : (user.email === 'admin@gmail.com' ? <Navigate to="/admin" /> : <Navigate to="/" />)} />
+        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/account" element={user ? <Account /> : <Navigate to="/login" />} />
+        <Route 
+          path="/admin" 
+          element={user && user.email === 'admin@gmail.com' ? <AdminPanel /> : <Navigate to="/login" />} 
+        />
+        <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
+      </Routes>
+    </div>
+  );
+}
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -416,65 +489,7 @@ function App() {
   return (
     <AppContext.Provider value={contextValue}>
       <Router>
-        <div className="App">
-          <AppBar position="static" style={{ backgroundColor: '#6d4c41' }}>
-            <Toolbar>
-              <Typography variant="h6" component={Link} to={user ? "/" : "/login"} style={{ flexGrow: 1, textDecoration: 'none', color: 'white' }}>
-                <HomeIcon style={{ marginRight: '10px', verticalAlign: 'middle' }} />
-                Cafe Catalog
-              </Typography>
-              {user && (
-                <>
-                  <IconButton color="inherit" component={Link} to="/cart">
-                    <Badge badgeContent={cartItems.length} color="secondary">
-                      <ShoppingCart />
-                    </Badge>
-                  </IconButton>
-                  <IconButton color="inherit" component={Link} to="/favorites">
-                    <Badge badgeContent={favoriteItems.length} color="secondary">
-                      <Favorite />
-                    </Badge>
-                  </IconButton>
-                  <IconButton 
-                    color="inherit" 
-                    component={Link} 
-                    to="/account"
-                    style={{ marginLeft: '8px' }}
-                  >
-                    {user.profileImage ? (
-                      <Avatar 
-                        src={user.profileImage} 
-                        alt={user.name} 
-                        sx={{ width: 32, height: 32, border: '2px solid white' }} 
-                      />
-                    ) : (
-                      <Person style={{ fontSize: '28px' }} />
-                    )}
-                  </IconButton>
-                </>
-              )}
-              {!user && (
-                <Button color="inherit" component={Link} to="/login">
-                  Giriş Yap
-                </Button>
-              )}
-            </Toolbar>
-          </AppBar>
-
-          <Routes>
-            <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
-            <Route path="/cart" element={user ? <Cart /> : <Navigate to="/login" />} />
-            <Route path="/favorites" element={user ? <Favorites /> : <Navigate to="/login" />} />
-            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-            <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-            <Route path="/account" element={user ? <Account /> : <Navigate to="/login" />} />
-            <Route 
-              path="/admin" 
-              element={user && user.email === 'admin@gmail.com' ? <AdminPanel /> : <Navigate to="/login" />} 
-            />
-            <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
-          </Routes>
-        </div>
+        <AppContent />
       </Router>
     </AppContext.Provider>
   );

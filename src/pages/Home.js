@@ -1,6 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../contexts/AppContext';
+// Değiştirin:
+// import { AppContext } from '../contexts/AppContext';
+
+// Yeni import:
+import { AppContext } from '../App';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import CategoryCard from '../components/CategoryCard';

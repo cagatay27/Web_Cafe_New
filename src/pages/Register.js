@@ -1,7 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-import { AppContext } from '../contexts/AppContext';
+// Değiştirin:
+// import { AppContext } from '../contexts/AppContext';
+
+// Yeni import:
+import { AppContext } from '../App';
 
 function Register() {
   const navigate = useNavigate();
