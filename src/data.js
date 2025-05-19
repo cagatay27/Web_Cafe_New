@@ -33,7 +33,7 @@ export const coffeeItems = [
   {
     id: 6,
     name: "Macchiato",
-    price: 19.99,
+    price: 100,
     image: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWFjY2hpYXRvfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
   }
 ];
@@ -50,7 +50,7 @@ export const cookieItems = [
     id: 8,
     name: "Susamlı Kurabiye",
     price: 50,
-    image: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bnV0JTIwY29va2llfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTU0z4AIXHl0CwdN70QRktDJ8ja1cCqZ8iP9w&s"
   },
   {
     id: 9,

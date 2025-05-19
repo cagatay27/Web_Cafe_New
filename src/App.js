@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Badge, Avatar } from '@mui/material';
-import { ShoppingCart, Favorite, Home as HomeIcon, Person } from '@mui/icons-material';
+import { ShoppingCart, Favorite, Home as HomeIcon, Person, Comment } from '@mui/icons-material';
 import './App.css';
 import { v4 as uuidv4 } from 'uuid';
 import { auth, db } from './firebase';
@@ -25,6 +25,7 @@ import {
 } from 'firebase/firestore';
 
 // Import components
+// İmport kısmına Comments bileşenini ekleyelim
 import Home from './components/Home';
 import Cart from './pages/Cart';
 import Favorites from './pages/Favorites';
@@ -32,6 +33,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Account from './pages/Account';
 import AdminPanel from './pages/AdminPanel';
+import Comments from './pages/Comments'; // Bu import'un eklendiğinden emin olun
 
 // Bu satırları silin:
 // // AppContext'i doğrudan tanımlamak yerine import edin
@@ -40,25 +42,26 @@ import AdminPanel from './pages/AdminPanel';
 // Create AppContext
 export const AppContext = createContext();
 
-function AppContent() {
+// AppWithRouter bileşenini App bileşeninden önce tanımlayalım
+function AppWithRouter() {
   const location = useLocation();
   const { cartItems, favoriteItems, user, logoutUser } = useContext(AppContext);
   
-  // Admin sayfasında olup olmadığımızı kontrol et
-  const isAdminPage = location.pathname === '/admin';
-  
   return (
     <div className="App">
-      {/* Admin sayfasında header'ı gösterme */}
-      {!isAdminPage && (
+      {!location.pathname.includes('/admin') && (
         <AppBar position="static" style={{ backgroundColor: '#6d4c41' }}>
           <Toolbar>
+            {/* Başlığa tıklandığında kullanıcı durumuna göre yönlendirme */}
             <Typography variant="h6" component={Link} to={user ? "/" : "/login"} style={{ flexGrow: 1, textDecoration: 'none', color: 'white' }}>
               <HomeIcon style={{ marginRight: '10px', verticalAlign: 'middle' }} />
               Cafe Catalog
             </Typography>
             {user && (
               <>
+                <IconButton color="inherit" component={Link} to="/comments">
+                  <Comment />
+                </IconButton>
                 <IconButton color="inherit" component={Link} to="/cart">
                   <Badge badgeContent={cartItems.length} color="secondary">
                     <ShoppingCart />
@@ -95,23 +98,27 @@ function AppContent() {
           </Toolbar>
         </AppBar>
       )}
-
-      <Routes>
-        <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
-        <Route path="/cart" element={user ? <Cart /> : <Navigate to="/login" />} />
-        <Route path="/favorites" element={user ? <Favorites /> : <Navigate to="/login" />} />
-        <Route path="/login" element={!user ? <Login /> : (user.email === 'admin@gmail.com' ? <Navigate to="/admin" /> : <Navigate to="/" />)} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-        <Route path="/account" element={user ? <Account /> : <Navigate to="/login" />} />
-        <Route 
-          path="/admin" 
-          element={user && user.email === 'admin@gmail.com' ? <AdminPanel /> : <Navigate to="/login" />} 
-        />
-        <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
-      </Routes>
+      
+      <div className="content-container">
+        <Routes>
+          {/* Ana sayfa rotasını koruma altına alalım */}
+          <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+          <Route path="/cart" element={user ? <Cart /> : <Navigate to="/login" />} />
+          <Route path="/favorites" element={user ? <Favorites /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/account" element={user ? <Account /> : <Navigate to="/login" />} />
+          <Route path="/admin" element={user && user.email === 'admin@gmail.com' ? <AdminPanel /> : <Navigate to="/login" />} />
+          <Route path="/comments" element={user ? <Comments /> : <Navigate to="/login" />} />
+          {/* Tanımlanmamış tüm rotaları login sayfasına yönlendir */}
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </div>
     </div>
   );
 }
+
+// AppContent bileşenini kaldıralım, artık kullanmıyoruz
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -438,7 +445,34 @@ function App() {
 
   const loginUser = async (email, password) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Giriş yap
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Kullanıcı bilgilerini hemen yükle
+      const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+      
+      if (userDoc.exists()) {
+        // Kullanıcı bilgilerini state'e kaydet
+        setUser({
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          ...userDoc.data()
+        });
+        
+        // Sepet ve favorileri yükle
+        await loadCartItems(userCredential.user.uid);
+        await loadFavoriteItems(userCredential.user.uid);
+      } else {
+        // Kullanıcı Firestore'da yoksa temel bilgileri kaydet
+        setUser({
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          name: '',
+          profileImage: '',
+          createdAt: new Date().toISOString()
+        });
+      }
+      
       return true;
     } catch (error) {
       console.error("Error logging in:", error);
@@ -449,6 +483,8 @@ function App() {
   const logoutUser = async () => {
     try {
       await signOut(auth);
+      // Çıkış yapıldıktan sonra kullanıcıyı login sayfasına yönlendir
+      window.location.href = '/login';
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -489,7 +525,7 @@ function App() {
   return (
     <AppContext.Provider value={contextValue}>
       <Router>
-        <AppContent />
+        <AppWithRouter />
       </Router>
     </AppContext.Provider>
   );
